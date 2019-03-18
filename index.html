@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<!--aQQdd93FLZnuwR9llZ4N1YLf6j5bDwScT6YDGlU8-->
+<body>
+    <h1>Enter a product to search for.</h1>
+    <h3>Then select a product from the list to see its ingredients</h3>
+
+    <input id="text" type="text">
+    <button id="search">Search!</button>
+    <select id="result"></select>
+    <div id="nutrients"></div>
+
+
+</body>
+
+<script src="//code.jquery.com/jquery.js"></script>
+<script>
+    $("#search").on("click",function()
+    {
+        //Define URL variable
+        var text = $("#text").val();
+        //alert(text);
+        var url = "https://api.nal.usda.gov/ndb/search/";
+        var key = "aQQdd93FLZnuwR9llZ4N1YLf6j5bDwScT6YDGlU8";
+        var params = {
+            "format":"json",
+            "q":text,
+            "sort":"n",
+            "max":"25",
+            "offset":"0",
+            "api_key":key
+        };
+
+        //Get the data
+        $.getJSON(url,params, function(result){
+            var items = result.list.item;
+
+            $.each(items,function(index,item){
+                //append to the output div
+                $("#result").append("<option value=\""+ item.ndbno + "\">" + item.name + "</option>");
+            });
+        });
+
+
+    });
+    $("#result").change(function() {
+        //https://api.nal.usda.gov/ndb/V2/reports?ndbno=01009&type=b&format=json&api_key=aQQdd93FLZnuwR9llZ4N1YLf6j5bDwScT6YDGlU8
+        //Define URL variable
+        var text = $("#text").val();
+
+        var url2 = "https://api.nal.usda.gov/ndb/V2/reports/";
+        var key = "aQQdd93FLZnuwR9llZ4N1YLf6j5bDwScT6YDGlU8";
+        var item = $("#result").val();
+        //alert(item);
+        var params2 = {
+            "ndbno":item,
+            "type":"b",
+            "format":"json",
+            "api_key":key
+        };
+
+        //$("#nutrients").append("<h3>Nutrition</h3><p>");
+
+        //TODO nothing appears in the nutrition div
+        $.getJSON(url2,params2, function(result2){
+
+            $("#nutrients").html("");
+            //console.log(result2.foods[0].food.desc.name);
+
+            var items = result2.foods[0].food.ing.desc;
+            items = items.split(",");
+
+            $("#nutrients").append("<h3>Ingredients for: " + result2.foods[0].food.desc.name + "</h3><p>");
+
+            $.each(items,function(index,item){
+                //append to the output div
+                console.log(item);
+                $("#nutrients").append("<p>" + item + "</p>");
+            });
+            $("#nutrients").append("</p>");
+        });
+
+    });
+
+
+</script>
+</html>
